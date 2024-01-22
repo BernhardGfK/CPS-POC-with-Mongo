@@ -3,13 +3,9 @@ from datetime import date, timedelta
 import random
 import calendar
 
-# q: How can I create a tble in sqlite which contains one row for all numbers from 1 to 100?
-# a: create table numbers (nr int); insert into numbers select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9 union select 10 union select 11 union select 12 union select 13 union select 14 union select 15 union select 16 union select 17 union select 18 union select 19 union select 20 union select 21 union select 22 union select 23 union select 24 union select 25 union select 26 union select 27 union select 28 union select 29 union select 30 union select 31 union select 32 union select 33 union select 34 union select 35 union select 36 union select 37 union select 38 union select 39 union select 40 union select 41 union select 42 union select 43 union select 44 union select 45 union select 46 union select 47 union select 48 union select 49 union select 50 union select 51 union select 52 union select 53 union select 54 union select 55 union select 56 union select 57 union select 58 union select 59 union select 60 union select 61 union select 62 union select 63 union select 64 union select 65 union select 66 union select 67 union select 68 union select 69 union select 70 union select 71 union select 72 union select 73 union select 74 union select 75 union select 76 union select 77 union select 78 union select 79 union select 80 union select 81 union select 82 union select 83 union select 84 union select 85 union select 86 union select 87 union select 88 union select 89 union select 90 union select 91 union select 92 union select 93 union select 94 union select 95 union select 96 union select 97 union select 98 union select 99 union select 100;
-# q: Is there a while loop in sqlite?   a: Yes, but it is not recommended. Use a recursive CTE instead.
-# q: How can a create the above table using recursive CTEs?
-# a: with recursive numbers(nr) as (select 1 union select nr+1 from numbers where nr<100) select * from numbers;
-# q: How can I create a table with all dates from 2017-01-01 to 2019-12-31?
-# a: with recursive dates(d) as (select date('2017-01-01') union select date(d, '+1 day') from dates where d<'2019-12-31') select * from dates;
+# This script generates household, weight and purchase data
+
+# This function generates household data
 def generateHouseholdData():
     """ generate household data """
     id=config.startid
@@ -52,6 +48,7 @@ def generateHouseholdData():
             print(validdate, file=hhfile)
     hhfile.close()
 
+    # now gerenerate the sql file for sqlite to import the data
     hhsql=open("hh.sql", "w")
     print("drop table if exists households;", file=hhsql)
     print("create table households (", file=hhsql)
@@ -70,6 +67,7 @@ def generateHouseholdData():
     print("select * from households limit 10;", file=hhsql)
     hhsql.close()
 
+    # generate the household axis
     hhaxfile=open("hhaxis.txt", "w")
     for b in config.bdl:
         for a in config.age:
@@ -78,6 +76,7 @@ def generateHouseholdData():
             print(b, b, a, a, "TOTAL", "TOTAL", "NULL", sep='\t', file=hhaxfile)
     hhaxfile.close()
 
+    # generate sql file for sqlite to import the axis data
     hhaxsql=open("hhaxis.sql", "w")
     print("drop table if exists hhaxis;",file=hhaxsql)
     print("create table hhaxis (",file=hhaxsql)
@@ -94,11 +93,13 @@ def generateHouseholdData():
     print("select * from hhaxis limit 10;",file=hhaxsql)
     hhaxsql.close()
 
+# This function generates a range of dates
 def daterange(start_date, end_date, length=1):
     """ generate a range of dates"""
     for n in range(0, int((end_date - start_date).days), length):
         yield start_date + timedelta(n)
 
+# This function generates weight data
 def generateWeightData():
     """ generate weight data """
     filewgts = open("wgt.txt", "w")
@@ -136,6 +137,7 @@ def generateWeightData():
                         print(config.firsthhid+j, begin, end, w[j]/s*config.hhnr, 0, sep='\t', file=filewgts)
     filewgts.close()
 
+    # genreating the sql file for sqlite to import the data
     wgtsql=open("wgt.sql", "w")
     print("drop table if exists weights;", file=wgtsql)
     print("create table weights (", file=wgtsql)
@@ -150,6 +152,7 @@ def generateWeightData():
     print("select * from weights limit 10;", file=wgtsql)
     wgtsql.close()
 
+# This function generates purchase data
 def generatePurchaseData():
     """ generate purchase data """
     start_date = date(2017, 1, 1)
@@ -236,6 +239,7 @@ def generatePurchaseData():
             print(rw, file=purfile)
     purfile.close()
 
+    # now gerenerate the sql file for sqlite to import the data
     pursql=open("pur.sql", "w")
     print("drop table if exists purchases;", file=pursql)
     print("create table purchases (", file=pursql)
@@ -258,6 +262,7 @@ def generatePurchaseData():
     print("select * from purchases limit 10;", file=pursql)
     pursql.close()
 
+    # generate the article/purchase axis
     artaxfile=open("artaxis.txt", "w")
     for article in articles:
         print(article[0], article[0], article[1], article[1], article[1], article[1], article[0], sep='\t', file=artaxfile)
@@ -265,6 +270,7 @@ def generatePurchaseData():
         print(article[0], article[0], article[1], article[1], "TOTAL", "TOTAL", "NULL", sep='\t', file=artaxfile)
     artaxfile.close()
 
+    # generate sql file for sqlite to import the axis data
     artaxsql=open("artaxis.sql", "w")
     print("drop table if exists artaxis;",file=artaxsql)
     print("create table artaxis (",file=artaxsql)
@@ -281,8 +287,6 @@ def generatePurchaseData():
     print("select * from artaxis limit 10;",file=artaxsql)
     artaxsql.close()
 
-#q: Does python have global variables?
-#a: Yes, but you have to declare them global in the function
 
 generateHouseholdData()
 generateWeightData()
